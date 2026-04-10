@@ -40,10 +40,12 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./keys:/opt/airflow/keys
+      - ./dbt:/opt/airflow/dbt
     environment:
       - LOAD_EX=n
       - EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - DBT_PROFILES_DIR=/opt/airflow/dbt
     ports:
       - "8080:8080"
     command: webserver
@@ -59,7 +61,9 @@ services:
       - ./logs:/opt/airflow/logs
       - ./plugins:/opt/airflow/plugins
       - ./keys:/opt/airflow/keys
+      - ./dbt:/opt/airflow/dbt
     environment:
       - EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - DBT_PROFILES_DIR=/opt/airflow/dbt
     command: scheduler

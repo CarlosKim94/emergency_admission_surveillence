@@ -4,18 +4,21 @@ from airflow.operators.bash import BashOperator # For running bash commands
 from airflow.operators.python import PythonOperator # For running Python functions
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
-from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
+from airflow.providers.google.cloud.operators.dataproc import DataprocSubmitPySparkJobOperator
 import pandas as pd
 
 # --- CONFIGURATION ---
 PROJECT_ID = "emergency-admission-492214"
 BUCKET = "emergency-admission-data"
 GCP_CONN_ID = "google_cloud_default" # The name in Airflow UI
+REGION = "europe-west1"
 
 # Data URL
 DATA_URL = "https://raw.githubusercontent.com/robert-koch-institut/Daten_der_Notaufnahmesurveillance/refs/heads/main/Notaufnahmesurveillance_Zeitreihen_Syndrome.tsv" 
 FILENAME = "emergency_data_{{ ds }}.parquet"
 LOCAL_PATH = "/opt/airflow/" + FILENAME
+CLUSTER_NAME = "emergency-spark-cluster"
+PYSPARK_JOB_PATH = f"gs://{BUCKET}/code/transform.py"
 # ---------------------
 
 def upload_to_gcs(bucket, object_name, local_file):
@@ -39,7 +42,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="ingest_emergency_data_v1",
+    dag_id="ingest_emergency_data_v2",
     schedule_interval="@weekly",
     default_args=default_args,
     catchup=False,
@@ -64,8 +67,9 @@ with DAG(
         },
     )
 
+    # Task 3: Load to BigQuery as raw back up
     load_to_bq_task = GCSToBigQueryOperator(
-        task_id='load_to_bq',
+        task_id='load_to_bq_raw',
         bucket='emergency-admission-data',
         # Path to the file we just uploaded
         source_objects=["raw/emergency_data_{{ ds }}.parquet"],
@@ -77,28 +81,21 @@ with DAG(
         gcp_conn_id='google_cloud_default'
     )
 
-    # Task 3: Cleanup local file to keep disk space
+    # Task 4: Spark Task
+    spark_transform = DataprocSubmitPySparkJobOperator(
+        task_id="spark_transform",
+        main=PYSPARK_JOB_PATH,
+        cluster_name=CLUSTER_NAME,
+        region=REGION,
+        # This JAR allows Spark to talk to BigQuery
+        dataproc_jars=["gs://spark-lib/bigquery/spark-bigquery-latest_2.12.jar"], 
+        gcp_conn_id='google_cloud_default'
+    )
+
+    # Task 5: Cleanup local file to keep disk space
     cleanup_task = BashOperator(
         task_id="cleanup_local",
         bash_command=f"rm {LOCAL_PATH}"
     )
 
-    # Task 4: Transform sting to dates and convert counts to integers
-    transform_data_task = BigQueryExecuteQueryOperator(
-        task_id='transform_data_to_clean',
-        sql="""
-            CREATE OR REPLACE TABLE `emergency-admission-492214.emergency_admission_data.admissions_clean` AS
-            SELECT
-            PARSE_DATE('%Y-%m-%d', date) AS admission_date,
-            syndrome,
-            age_group,
-            relative_cases,
-            CAST(ed_count AS INT64) AS admission_count
-            FROM
-            `emergency-admission-492214.emergency_admission_data.admissions_raw`
-        """,
-        use_legacy_sql=False,
-        gcp_conn_id='google_cloud_default'
-    )
-
-    download_task >> upload_task >> load_to_bq_task >> cleanup_task >> transform_data_task
+    download_task >> upload_task >> load_to_bq_task >> spark_transform >> cleanup_task

@@ -1,0 +1,14 @@
+emergency_dbt:
+  outputs:
+    dev:
+      dataset: emergency_admission_data
+      job_execution_timeout_seconds: 60
+      job_retries: 1
+      keyfile: /opt/airflow/keys/emergency-admission-492214-c3756c77628d.json
+      location: europe-west1
+      method: service-account
+      priority: interactive
+      project: emergency-admission-492214
+      threads: 4
+      type: bigquery
+  target: dev

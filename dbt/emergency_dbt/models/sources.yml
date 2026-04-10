@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: staging_data
+    database: emergency-admission-492214
+    schema: emergency_admission_data
+    tables:
+      - name: stg_admissions
