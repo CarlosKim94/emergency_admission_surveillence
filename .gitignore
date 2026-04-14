@@ -1,7 +1,7 @@
 .venv/
 .python-version
 __pycache__/
-.streamlit/
+streamlit_app/.streamlit/
 keys/
 .DS_Store
 logs/
