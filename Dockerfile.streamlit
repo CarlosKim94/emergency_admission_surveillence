@@ -1,0 +1,17 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install only what the dashboard needs
+RUN pip install --no-cache-dir \
+    streamlit \
+    google-cloud-bigquery \
+    google-cloud-bigquery-storage \
+    pandas \
+    pyarrow \
+    db-dtypes \
+    plotly \
+    plotly-express
+
+# Automatically run the app on startup
+ENTRYPOINT ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]

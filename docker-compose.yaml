@@ -67,3 +67,15 @@ services:
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - DBT_PROFILES_DIR=/opt/airflow/dbt
     command: scheduler
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    container_name: emergency_streamlit
+    volumes:
+      - ./streamlit_app:/app
+      - ./keys:/app/keys
+    ports:
+      - "8501:8501"
+    restart: always
