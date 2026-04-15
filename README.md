@@ -30,7 +30,7 @@ The data on emergency admissions for respiratory diseases is collected daily as 
 
 ## 🏗️ Data Pipeline Architecture
 
-<img src="https://github.com/CarlosKim94/pneumonia_detection/blob/main/image/de_architecture.png" width="400" height="500">
+<img src="https://github.com/CarlosKim94/emergency_admission_surveillence/blob/main/images/de_architecture.png" width="900" height="500">
 
 The table below defines the project's technology stack and the optimization strategy implemented within the BigQuery Data Warehouse.
 
@@ -48,7 +48,7 @@ The table below defines the project's technology stack and the optimization stra
 ## 📊 Dashboard
 [The Streamlit dashboard](https://emergencyadmissionsurveillence.streamlit.app/)
 
-<img src="https://github.com/CarlosKim94/pneumonia_detection/blob/main/image/de_architecture.png" width="400" height="500">
+<img src="https://github.com/CarlosKim94/emergency_admission_surveillence/blob/main/images/dashboard.png" width="900" height="1100">
 
 ---
 
