@@ -32,7 +32,7 @@ The data on emergency admissions for respiratory diseases is collected daily as 
 
 <img src="https://github.com/CarlosKim94/emergency_admission_surveillence/blob/main/images/de_architecture.png" width="900" height="500">
 
-The table below defines the project's technology stack and the optimization strategy implemented within the BigQuery Data Warehouse.
+The table below defines the project's technology stack and the optimization strategy implemented.
 
 | Pipeline Stage | Components | Primary Tool(s) | Architecture Details |
 | :--- | :--- | :--- | :--- |
@@ -138,7 +138,8 @@ dbt run --profiles-dir .
 `streamlit run streamlit_app/app.py`
 
 ### 8. Deploy on Cloud
-https://github.com/user-attachments/assets/5a1b5cee-1147-4c1a-bccc-e2701e22f4a7
+
+https://github.com/user-attachments/assets/e08a64ba-eefa-4dc8-a764-730a089acb78
 
 ---
 
